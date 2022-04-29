@@ -1,32 +1,28 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
-	"log"
-	"net/http"
 	"os"
+
+	"github.com/gin-gonic/gin"
 )
 
-type Hello struct {
-	Message string `json:"message"`
+type Todo struct {
+	ID          int    `json:"id"`
+	Name        string `json:"message"`
+	IsCompleted bool   `json:"is_completed"`
+}
+
+func Ping(c *gin.Context) {
+	c.JSON(200, gin.H{"message": "pong"})
 }
 
 func main() {
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		log.Print("GET '/'")
-		json.NewEncoder(w).Encode(Hello{Message: "Hello World!"})
-	})
-
+	r := gin.Default()
+	r.GET("/", Ping)
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "80"
 	}
-
-	log.Printf("Server starting on %s port \n", fmt.Sprintf(":%v", port))
-	err := http.ListenAndServe(fmt.Sprintf(":%v", port), nil)
-	if err != nil {
-		log.Printf("Server not starting, error : %s \n", err.Error())
-	}
+	r.Run(fmt.Sprintf(":%s", port))
 }
